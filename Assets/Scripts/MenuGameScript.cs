@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class MenuGameScript : MonoBehaviour
@@ -13,7 +14,7 @@ public class MenuGameScript : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKey(KeyCode.Pause))
+        if (Input.GetKeyDown(KeyCode.Escape))
         {
             if (panel.activeSelf)
             {
@@ -25,4 +26,15 @@ public class MenuGameScript : MonoBehaviour
         }
     }
 
+
+    public void ResumeGame()
+    {
+        panel.SetActive(false);
+    }
+
+
+    public void ReturnToLobby()
+    {
+        SceneManager.LoadScene("Menu");
+    }
 }
