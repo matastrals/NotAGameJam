@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public class Character : MonoBehaviour
 {
@@ -6,16 +7,19 @@ public class Character : MonoBehaviour
     protected string Name { get; set; }
 
     protected float Health { get; set; }
-    
+
     protected float Atk { get; set; }
-    
+
     protected float Def { get; set; }
 
     protected float Speed { get; set; }
-    
+
     // Constante
-    
     protected const float ROAMING_SPEED = 2f;
+    
+    private static List<Character> allCharacters = new();
+    
+    private DeathScreenScript deathScreenScript = GameObject.Find("DeathScreen").GetComponent<DeathScreenScript>();
 
     // Constructeur
     public Character()
@@ -48,21 +52,82 @@ public class Character : MonoBehaviour
     }
 
     // Fonction TakeDamage
-    public int TakeDamage(int damage)
+    public void TakeDamage(float damage)
     {
         Debug.Log(Name + " recoit " + damage + " de degats !");
         Health = Substract(Health, damage);
+
         if (Health <= 0)
         {
-            if (Name == "Player")
+            if (CompareTag("Player"))
             {
-                Debug.Log("Vous etes mort !");
+                Debug.Log("Le joueur est mort !");
+                BattleManager.Instance.RemoveFromCombat(this);
+                deathScreenScript.callDeathScreen();
+            }
+            else if (CompareTag("Enemy"))
+            {
+                Debug.Log(Name + " est vaincu !");
+                BattleManager.Instance.RemoveFromCombat(this);
+                CheckVictory();
             }
             else
             {
-                Debug.Log(Name + " a peri !");
+                Debug.Log("Tag inconnu pour " + Name);
             }
         }
-        return (int)Health;
+    }
+
+    
+    // Fonction DoDamage
+    public void DoDamage(Character otherCharacter)
+    {
+        float damage = Mathf.Max(0, Atk - otherCharacter.Def);
+
+        Debug.Log(Name + " inflige " + damage + " de degats a " + otherCharacter.Name);
+        otherCharacter.TakeDamage(damage);
+    }
+
+    // Fonction CheckVictory
+    private void CheckVictory()
+    {
+        List<Character> enemies = allCharacters.FindAll(c => c.CompareTag("Enemy"));
+
+        if (enemies.Count == 0)
+        {
+            // TODO: Ecran de victoire
+            Debug.Log("Tous les ennemis ont ete vaincus ! Vous avez gagne !");
+        }
+    }
+    
+    public static List<Character> GetAllCharacters()
+    {
+        return new List<Character>(allCharacters);
+    }
+    
+    public int CompareSpeeds(Character otherCharacter)
+    {
+        if (Speed > otherCharacter.Speed)
+        {
+            return -1;
+        }
+
+        if (Speed < otherCharacter.Speed)
+        {
+            return 1;
+        }
+
+        return 0;
+    }
+
+
+    private void Start()
+    {
+        allCharacters.Add(this);
+    }
+
+    private void OnDestroy()
+    {
+        allCharacters.Remove(this);
     }
 }

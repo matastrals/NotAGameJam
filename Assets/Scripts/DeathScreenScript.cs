@@ -26,6 +26,11 @@ public class DeathScreenScript : MonoBehaviour
         if (Input.GetKeyUp(KeyCode.Space)) { StartCoroutine(DeathAnimation()); }
     }
 
+    public void callDeathScreen()
+    {
+        StartCoroutine(DeathAnimation());
+    }
+
 
     IEnumerator DeathAnimation()
     {
