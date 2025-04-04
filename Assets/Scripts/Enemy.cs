@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.Tilemaps;
 
 public class Enemy : Character
 {
@@ -6,7 +8,9 @@ public class Enemy : Character
     private Rigidbody2D rb;
     private bool isChasing;
     private Vector2 randomDirection;
-    
+
+    private static List<GameObject> engagedEnemies = new List<GameObject>();
+
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -60,17 +64,55 @@ public class Enemy : Character
     {
         if (collision.gameObject.CompareTag("Player") && collision.gameObject.GetComponent<Player>() != null)
         {
-            Debug.Log("Combat initie");
-            rb.velocity = Vector2.zero;
-            isChasing = false;
-            rb.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezePositionY;
-            
-            //methode pour lancer le combat
-
+            // Méthode pour lancer le combat
+            RepositionEnemies(collision.transform);
         }
         else if (collision.gameObject.CompareTag("Wall"))
         {
             SetRandomDirection();
         }
     }
+
+    private void RepositionEnemies(Transform playerTransform)
+    {
+        // Ajouter l'ennemi dans la liste s'il n'y est pas encore
+        if (!engagedEnemies.Contains(gameObject))
+        {
+            engagedEnemies.Add(gameObject);
+            
+            rb.velocity = Vector2.zero;
+            isChasing = false;
+            rb.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezePositionY;
+        }
+
+        int enemyCount = engagedEnemies.Count;
+    
+        // Définir un padding pour éviter le chevauchement avec le joueur
+        float yPadding = 1.0f;  // Distance minimale en Y entre le joueur et les ennemis
+        float spacing = 1.5f;   // Distance entre chaque ennemi sur l'axe X
+
+        // Nouvelle position de base avec un padding en Y
+        Vector2 basePosition = new Vector2(playerTransform.position.x, playerTransform.position.y + yPadding);
+
+        for (int i = 0; i < enemyCount; i++)
+        {
+            GameObject enemy = engagedEnemies[i];
+
+            if (enemyCount == 1)
+            {
+                // Un seul ennemi, il est en face du joueur avec un léger offset en Y
+                enemy.transform.position = basePosition;
+            }
+            else
+            {
+                // Alternance gauche/droite en fonction de l'index
+                int side = (i % 2 == 0) ? -1 : 1; // Pair à gauche, impair à droite
+                float offset = (i / 2 + 1) * spacing * side; // Décalage progressif en X
+
+                enemy.transform.position = new Vector2(basePosition.x + offset, basePosition.y);
+            }
+        }
+    }
+
+    
 }
