@@ -1310,6 +1310,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   panel: {fileID: 1952877453}
+  resumeButton: {fileID: 1125730146}
 --- !u!114 &2035332238
 MonoBehaviour:
   m_ObjectHideFlags: 0
