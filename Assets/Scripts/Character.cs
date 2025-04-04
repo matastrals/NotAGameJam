@@ -18,8 +18,9 @@ public class Character : MonoBehaviour
     protected const float ROAMING_SPEED = 2f;
     
     private static List<Character> allCharacters = new();
+
+    private DeathScreenScript deathScreenScript;
     
-    private DeathScreenScript deathScreenScript = GameObject.Find("DeathScreen").GetComponent<DeathScreenScript>();
 
     // Constructeur
     public Character()
@@ -123,6 +124,8 @@ public class Character : MonoBehaviour
 
     private void Start()
     {
+        DeathScreenScript deathScreenScript = GameObject.Find("DeadScreen").GetComponent<DeathScreenScript>();
+
         allCharacters.Add(this);
     }
 

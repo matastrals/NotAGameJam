@@ -89,13 +89,15 @@ public class BattleManager : MonoBehaviour
     
     public void ActivateCombatUI()
     {
-        // TODO: Lancer l UI de combat
+        FightInventory fi = GameObject.Find("InventoryCanvas").GetComponent<FightInventory>();
+        fi.StateUiFight(true);
         Debug.Log("L UI de combat est maintenant activee.");
     }
     
     public void DesactivateCombatUI()
     {
-        // TODO: Fermer l UI de combat
+        FightInventory fi = GameObject.Find("InventoryCanvas").GetComponent<FightInventory>();
+        fi.StateUiFight(true);
         Debug.Log("L UI de combat est maintenant fermee.");
     }
 }
