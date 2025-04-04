@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Tilemaps;
 
 public class Enemy : Character
 {
@@ -9,28 +8,25 @@ public class Enemy : Character
     private bool isChasing;
     private Vector2 randomDirection;
 
-    private static List<GameObject> engagedEnemies = new List<GameObject>();
+    private static List<GameObject> engagedEnemies = new();
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
-        rb.freezeRotation = true;
-        rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
-
         SetRandomDirection();
     }
 
     private void SetRandomDirection()
     {
-        float screenWidth = Screen.width;
-        float screenHeight = Screen.height;
+        float randomX = Random.Range(0f, Screen.width);
+        float randomY = Random.Range(0f, Screen.height);
 
-        float randomX = Random.Range(0f, screenWidth);
-        float randomY = Random.Range(0f, screenHeight);
+        if (Camera.main != null)
+        {
+            Vector2 worldPosition = Camera.main.ScreenToWorldPoint(new Vector3(randomX, randomY, Camera.main.nearClipPlane));
 
-        Vector2 worldPosition = Camera.main.ScreenToWorldPoint(new Vector3(randomX, randomY, Camera.main.nearClipPlane));
-
-        randomDirection = (worldPosition - (Vector2)transform.position).normalized;
+            randomDirection = (worldPosition - (Vector2)transform.position).normalized;
+        }
     }
 
     void Update()
@@ -64,8 +60,20 @@ public class Enemy : Character
     {
         if (collision.gameObject.CompareTag("Player") && collision.gameObject.GetComponent<Player>() != null)
         {
-            // Méthode pour lancer le combat
-            RepositionEnemies(collision.transform);
+            Debug.Log("Collision avec le joueur détectée, lancement du combat.");
+
+            if (!BattleManager.Instance.IsCharacterInCombat(this))
+            {
+                BattleManager.Instance.AddToCombat(this);
+                RepositionEnemies(collision.transform);
+            }
+            
+            Player player = collision.gameObject.GetComponent<Player>();
+            
+            if (!BattleManager.Instance.IsCharacterInCombat(player))
+            {
+                BattleManager.Instance.AddToCombat(player);
+            }
         }
         else if (collision.gameObject.CompareTag("Wall"))
         {
